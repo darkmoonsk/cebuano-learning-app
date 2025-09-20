@@ -17,22 +17,41 @@ export default async function DashboardPage() {
           Welcome back{session.user.name ? `, ${session.user.name}` : ""}
         </h1>
 
-        <FeatureOptionCard
-          title="Flashcards"
-          description="Review your Cebuano flashcards with adaptive spaced repetition."
-          href="/dashboard/flashcards"
-          content={
-            <Image
-              src="/flashcards.png"
-              alt="Flashcards"
-              width={280}
-              height={280}
-              className="rounded-xl"
-              priority
-              unoptimized
-            />
-          }
-        />
+        <div className="flex gap-12">
+          <FeatureOptionCard
+            title="Flashcards"
+            description="Review your Cebuano flashcards with adaptive spaced repetition."
+            href="/dashboard/flashcards"
+            content={
+              <Image
+                src="/flashcards.png"
+                alt="Flashcards"
+                width={280}
+                height={280}
+                className="rounded-xl"
+                priority
+                unoptimized
+              />
+            }
+          />
+
+          <FeatureOptionCard
+            title="Listening game"
+            description="Listen to the word and choose the correct option."
+            href="/dashboard/listening"
+            content={
+              <Image
+                src="/listen.png"
+                alt="Listening game"
+                width={280}
+                height={280}
+                className="rounded-xl"
+                priority
+                unoptimized
+              />
+            }
+          />
+        </div>
       </div>
     </div>
   );

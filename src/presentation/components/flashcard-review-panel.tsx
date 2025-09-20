@@ -24,7 +24,6 @@ import {
 import { Badge } from "@/presentation/components/ui/badge";
 import { Progress } from "@/presentation/components/ui/progress";
 import { useCases } from "@/infrastructure/container";
-import { audio } from "@elevenlabs/elevenlabs-js/api/resources/dubbing";
 
 const difficultyOrder: Difficulty[] = ["again", "hard", "good", "easy"];
 
