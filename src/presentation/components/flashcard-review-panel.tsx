@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
-import { Loader2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { Loader2, Volume2 } from "lucide-react";
 import {
   FlashcardDto,
   fetchDueFlashcards,
@@ -24,6 +24,7 @@ import {
 import { Badge } from "@/presentation/components/ui/badge";
 import { Progress } from "@/presentation/components/ui/progress";
 import { useCases } from "@/infrastructure/container";
+import { audio } from "@elevenlabs/elevenlabs-js/api/resources/dubbing";
 
 const difficultyOrder: Difficulty[] = ["again", "hard", "good", "easy"];
 
@@ -45,6 +46,13 @@ export function FlashcardReviewPanel({
   const [showAnswer, setShowAnswer] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [wordExplain, setWordExplain] = useState("");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const autoPlayedCardIdRef = useRef<string | null>(null);
+
+  function getAudioUrlFromWord(word: string) {
+    const slug = word.trim().toLowerCase().replace(/\s+/g, "-");
+    return `/audio/words/${slug}.mp3`;
+  }
 
   useEffect(() => {
     const fetchWordExplain = async () => {
@@ -60,6 +68,23 @@ export function FlashcardReviewPanel({
   }, []);
 
   const currentCard = cards[0];
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [currentCard?.id]);
+
+  useEffect(() => {
+    if (!currentCard?.id) return;
+    if (autoPlayedCardIdRef.current === currentCard.id) return;
+    autoPlayedCardIdRef.current = currentCard.id;
+    handlePlayAudio();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentCard?.id]);
 
   const completionPercent = useMemo(() => {
     if (progress.totalLearned === 0) {
@@ -113,6 +138,18 @@ export function FlashcardReviewPanel({
     });
   }
 
+  function handlePlayAudio() {
+    if (!currentCard) return;
+    const audioUrl = getAudioUrlFromWord(currentCard.cebuano);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+    void audio.play();
+  }
+
   if (!currentCard) {
     return (
       <Card className="max-w-xl w-full">
@@ -146,9 +183,19 @@ export function FlashcardReviewPanel({
       <Card className="min-h-[320px]">
         <CardHeader className="flex flex-row items-start justify-between">
           <div>
-            <CardTitle className="text-3xl font-semibold">
-              {currentCard.cebuano}
-            </CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-3xl font-semibold">
+                {currentCard.cebuano}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Play audio"
+                onClick={handlePlayAudio}
+              >
+                <Volume2 className="h-5 w-5" />
+              </Button>
+            </div>
             <CardDescription>What is the English meaning?</CardDescription>
           </div>
           <div className="flex gap-2">

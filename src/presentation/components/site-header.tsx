@@ -127,10 +127,10 @@ export function SiteHeader({ session }: SiteHeaderProps) {
         {/* Right side actions */}
         <div className="flex items-center gap-4">
           {/* Cart */}
-          <div className="hidden sm:flex items-center gap-2 text-sm text-[#03045e]">
+          {/* <div className="hidden sm:flex items-center gap-2 text-sm text-[#03045e]">
             <ShoppingCart />
             <span>Cart (0)</span>
-          </div>
+          </div> */}
 
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
