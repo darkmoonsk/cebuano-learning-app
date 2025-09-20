@@ -14,7 +14,7 @@ export interface GetDueFlashcardsResult {
 export class GetDueFlashcardsUseCase {
   constructor(
     private readonly reviewRepository: ReviewRepository,
-    private readonly flashcardRepository: FlashcardRepository,
+    private readonly flashcardRepository: FlashcardRepository
   ) {}
 
   async execute(input: GetDueFlashcardsInput): Promise<GetDueFlashcardsResult> {
@@ -23,7 +23,7 @@ export class GetDueFlashcardsUseCase {
     const reviewStates = await this.reviewRepository.findDueByUser(
       input.userId,
       now,
-      limit,
+      limit
     );
 
     const flashcards: Flashcard[] = [];
@@ -36,11 +36,20 @@ export class GetDueFlashcardsUseCase {
     }
 
     if (flashcards.length < limit) {
-      const additional = await this.flashcardRepository.findDueForUser(
-        input.userId,
-        limit - flashcards.length,
+      const introducedToday =
+        await this.reviewRepository.countIntroductionsOnDate(input.userId, now);
+      const remainingNewToday = Math.max(0, 10 - introducedToday);
+      const allowedTopUp = Math.min(
+        remainingNewToday,
+        limit - flashcards.length
       );
-      flashcards.push(...additional);
+      if (allowedTopUp > 0) {
+        const additional = await this.flashcardRepository.findDueForUser(
+          input.userId,
+          allowedTopUp
+        );
+        flashcards.push(...additional);
+      }
     }
 
     return { due: flashcards };

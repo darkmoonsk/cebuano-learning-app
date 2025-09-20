@@ -91,6 +91,24 @@ export class PrismaReviewRepository implements ReviewRepository {
     };
   }
 
+  async countIntroductionsOnDate(userId: string, date: Date): Promise<number> {
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
+    // We consider an "introduction" to be any ReviewState created this day for this user
+    // with repetitions equal to 0 at creation time (first-time learn). Since we don't store
+    // the repetition snapshot at creation separately, we approximate by counting creations.
+    // That matches our flow where a ReviewState is only created on first review.
+    return prisma.reviewState.count({
+      where: {
+        userId,
+        createdAt: { gte: dayStart, lt: dayEnd },
+      },
+    });
+  }
+
   private computeStreak(events: { createdAt: Date }[], now: Date) {
     if (!events.length) {
       return 0;
