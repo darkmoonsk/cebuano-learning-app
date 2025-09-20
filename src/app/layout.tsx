@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bisaya Flashcards",
+  title: "Bisaya Learning",
   description:
     "Learn Cebuano vocabulary with adaptive spaced repetition and progress tracking.",
 };
