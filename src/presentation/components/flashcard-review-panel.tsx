@@ -23,6 +23,7 @@ import {
 } from "@/presentation/components/ui/card";
 import { Badge } from "@/presentation/components/ui/badge";
 import { Progress } from "@/presentation/components/ui/progress";
+import { getAudioUrlFor } from "@/presentation/lib/utils";
 import { useCases } from "@/infrastructure/container";
 
 const difficultyOrder: Difficulty[] = ["again", "hard", "good", "easy"];
@@ -48,10 +49,7 @@ export function FlashcardReviewPanel({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const autoPlayedCardIdRef = useRef<string | null>(null);
 
-  function getAudioUrlFromWord(word: string) {
-    const slug = word.trim().toLowerCase().replace(/\s+/g, "-");
-    return `/audio/words/${slug}.mp3`;
-  }
+  // uses shared getAudioUrlFor
 
   useEffect(() => {
     const fetchWordExplain = async () => {
@@ -139,7 +137,7 @@ export function FlashcardReviewPanel({
 
   function handlePlayAudio() {
     if (!currentCard) return;
-    const audioUrl = getAudioUrlFromWord(currentCard.cebuano);
+    const audioUrl = getAudioUrlFor(currentCard.cebuano);
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@/presentation/components/ui/button";
+import { Button, ButtonProps } from "@/presentation/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,22 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/presentation/components/ui/card";
+import { WordItem } from "@/types/word-item";
+import { getAudioUrlFor } from "@/presentation/lib/utils";
 
-type WordItem = {
-  id: number;
-  english: string;
-  cebuano: string;
-  pos?: string;
-  level?: string;
-};
-
-function toSlugAudio(word: string) {
-  return word.trim().toLowerCase().replace(/\s+/g, "-");
-}
-
-function getAudioUrl(word: string) {
-  return `/audio/words/${toSlugAudio(word)}.mp3`;
-}
+// uses shared getAudioUrlFor
 
 function sample<T>(arr: T[], n: number): T[] {
   const copy = [...arr];
@@ -54,7 +42,7 @@ export default function ListeningGame({ words }: { words: WordItem[] }) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-    const url = getAudioUrl(word);
+    const url = getAudioUrlFor(word);
     const audio = new Audio(url);
     audioRef.current = audio;
     void audio.play();
@@ -129,7 +117,7 @@ export default function ListeningGame({ words }: { words: WordItem[] }) {
             return (
               <Button
                 key={w.id}
-                variant={variant as any}
+                variant={variant as ButtonProps["variant"]}
                 onClick={() => handleSelect(w.id)}
                 disabled={answered}
                 className="py-6"
