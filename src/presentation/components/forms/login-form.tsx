@@ -25,7 +25,10 @@ export function LoginForm() {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const candidate = Object.fromEntries(formData.entries()) as Record<string, string>;
+    const candidate = Object.fromEntries(formData.entries()) as Record<
+      string,
+      string
+    >;
 
     const parsed = loginSchema.safeParse(candidate);
     if (!parsed.success) {
@@ -55,18 +58,38 @@ export function LoginForm() {
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" placeholder="you@example.com" required />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          required
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
-        <Input id="password" name="password" type="password" placeholder="••••••••" required />
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="••••••••"
+          required
+        />
       </div>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Signing in..." : "Sign in"}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
-        New here? <Link className="font-medium text-primary" href="/register">Create an account</Link>
+        <Link className="font-medium text-primary" href="/forgot-password">
+          Forgot your password?
+        </Link>
+      </p>
+      <p className="text-center text-sm text-muted-foreground">
+        New here?{" "}
+        <Link className="font-medium text-primary" href="/register">
+          Create an account
+        </Link>
       </p>
     </form>
   );

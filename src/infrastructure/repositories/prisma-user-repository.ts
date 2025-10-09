@@ -1,5 +1,8 @@
 import { prisma } from "@/infrastructure/prisma/client";
-import { CreateUserInput, UserRepository } from "@/domain/repositories/user-repository";
+import {
+  CreateUserInput,
+  UserRepository,
+} from "@/domain/repositories/user-repository";
 import { User } from "@/domain/entities/user";
 
 export class PrismaUserRepository implements UserRepository {
@@ -18,6 +21,13 @@ export class PrismaUserRepository implements UserRepository {
       data,
     });
     return this.toDomain(record);
+  }
+
+  async updatePassword(id: string, hashedPassword: string) {
+    await prisma.user.update({
+      where: { id },
+      data: { hashedPassword },
+    });
   }
 
   private toDomain(record: {
