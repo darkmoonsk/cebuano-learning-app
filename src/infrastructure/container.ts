@@ -1,12 +1,12 @@
 // Infrastructure repositories
 import { PrismaUserRepository } from "@/infrastructure/repositories/prisma-user-repository";
-import { PrismaFlashcardRepository } from "@/infrastructure/repositories/prisma-flashcard-repository";
+// import { PrismaFlashcardRepository } from "@/infrastructure/repositories/prisma-flashcard-repository";
 import { JsonFlashcardRepository } from "@/infrastructure/repositories/json-flashcard-repository";
 import { PrismaReviewRepository } from "@/infrastructure/repositories/prisma-review-repository";
 import { PrismaPasswordResetTokenRepository } from "@/infrastructure/repositories/prisma-password-reset-token-repository";
 import { PrismaAchievementRepository } from "@/infrastructure/repositories/prisma-achievement-repository";
 import { JsonPhraseRepository } from "@/infrastructure/repositories/json-phrase-repository";
-import { PrismaPhraseRepository } from "@/infrastructure/repositories/prisma-phrase-repository";
+// import { PrismaPhraseRepository } from "@/infrastructure/repositories/prisma-phrase-repository";
 import { PrismaPhraseReviewRepository } from "@/infrastructure/repositories/prisma-phrase-review-repository";
 
 // Application use cases

@@ -1,5 +1,4 @@
 import { Difficulty } from "../value-objects/difficulty-rating";
-import { ReviewState } from "../entities/review";
 
 export interface SchedulingResult {
   easeFactor: number;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card } from "@/presentation/components/ui/card";
 import { Badge } from "@/presentation/components/ui/badge";
 import { X, Trophy } from "lucide-react";
@@ -28,6 +28,14 @@ export function AchievementToast({
   const [isVisible, setIsVisible] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  const handleClose = useCallback(() => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsVisible(false);
+      onClose();
+    }, 300);
+  }, [onClose]);
+
   useEffect(() => {
     if (autoClose) {
       const timer = setTimeout(() => {
@@ -36,15 +44,7 @@ export function AchievementToast({
 
       return () => clearTimeout(timer);
     }
-  }, [autoClose, duration]);
-
-  const handleClose = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setIsVisible(false);
-      onClose();
-    }, 300);
-  };
+  }, [autoClose, duration, handleClose]);
 
   const getCategoryColor = (category: string) => {
     switch (category) {

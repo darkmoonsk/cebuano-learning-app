@@ -12,7 +12,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10">
-      <div className="space-y-8">
+      <div className="space-y-8 flex flex-col items-center justify-center">
         <h1 className="text-3xl font-semibold tracking-tight">
           Welcome back{session.user.name ? `, ${session.user.name}` : ""}
         </h1>
@@ -54,15 +54,18 @@ export default async function DashboardPage() {
 
           <FeatureOptionCard
             title="Phrase Builder"
-            description="Learn Cebuano phrases by assembling word blocks in the correct order."
+            description="Learn Cebuano phrases by building them with word blocks."
             href="/dashboard/phrases"
             content={
-              <div className="flex h-[280px] w-[280px] items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                <div className="text-center">
-                  <div className="text-4xl mb-2">🧩</div>
-                  <div className="text-lg font-semibold">Phrase Builder</div>
-                </div>
-              </div>
+              <Image
+                src="/phrases.png"
+                alt="Phrase Builder"
+                width={280}
+                height={280}
+                className="rounded-xl"
+                priority
+                unoptimized
+              />
             }
           />
         </div>

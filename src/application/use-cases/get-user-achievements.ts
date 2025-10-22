@@ -31,14 +31,15 @@ export class GetUserAchievementsUseCase {
   async execute(input: GetUserAchievementsInput): Promise<UserAchievement[]> {
     const [existingAchievements, stats] = await Promise.all([
       this.achievementRepository.findByUser(input.userId),
-      this.getAchievementStats(input.userId),
+      this.getAchievementStats(),
     ]);
 
     const unlockedAchievements =
       this.achievementService.getUnlockedAchievements(existingAchievements);
-    const unlockedAchievementIds = new Set(
-      unlockedAchievements.map((a) => a.definition.id)
-    );
+    // Build unlocked achievements for quick lookup if needed in future
+    // const unlockedAchievementIds = new Set(
+    //   unlockedAchievements.map((a) => a.definition.id)
+    // );
 
     return ACHIEVEMENT_DEFINITIONS.map((definition) => {
       const unlockedAchievement = unlockedAchievements.find(
@@ -70,7 +71,7 @@ export class GetUserAchievementsUseCase {
     });
   }
 
-  private async getAchievementStats(userId: string) {
+  private async getAchievementStats() {
     // This would typically come from the review repository
     // For now, we'll return a basic structure
     // In a real implementation, this would call the review repository's getAchievementStats method

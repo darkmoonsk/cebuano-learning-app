@@ -96,7 +96,7 @@ export default function ListeningGame({ words }: { words: WordItem[] }) {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [answer]);
+  }, [answer, round]);
 
   function handleSelect(rank: number) {
     if (!answer || answered) return;

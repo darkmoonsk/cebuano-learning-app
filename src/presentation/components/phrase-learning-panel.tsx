@@ -76,20 +76,6 @@ export function PhraseLearningPanel({
   const currentPhrase = phrases[currentPhraseIndex];
   const currentPractice = practicePhrases[currentPracticeIndex];
 
-  // const completionPercent = useMemo(() => {
-  //   if (progress.totalLearned === 0) {
-  //     return 0;
-  //   }
-  //   const completedToday = Math.max(
-  //     progress.totalLearned - progress.dueToday,
-  //     0
-  //   );
-  //   return Math.max(
-  //     0,
-  //     Math.min(100, (completedToday / Math.max(progress.totalLearned, 1)) * 100)
-  //   );
-  // }, [progress]);
-
   async function refreshState() {
     const [nextPhrases, nextProgress] = await Promise.all([
       fetchDuePhrases(userId),
@@ -278,6 +264,7 @@ export function PhraseLearningPanel({
   function continueLearning() {
     setPhase("learning");
     setCurrentPhraseIndex(0);
+    void refreshState();
   }
 
   if (phrases.length === 0) {
@@ -475,9 +462,9 @@ export function PhraseLearningPanel({
                     </div>
                     {!currentPractice.isCorrect && (
                       <div className="mt-2 space-y-2">
-                        <p className="text-sm">
+                        {/* <p className="text-sm">
                           Correct order: {currentPractice.words.join(" ")}
-                        </p>
+                        </p> */}
                         <div className="text-sm">
                           <p className="font-medium mb-1">Word positions:</p>
                           <div className="flex flex-wrap gap-1">

@@ -22,7 +22,7 @@ function FeatureOptionCard({
 }) {
   return (
     <Link href={href} className="block">
-      <Card className="hover:shadow-lg transition-transform ease-in-out duration-300 hover:scale-105 transform-gpu cursor-pointer max-w-[280px]">
+      <Card className="hover:shadow-lg transition-transform ease-in-out duration-300 hover:scale-105 transform-gpu cursor-pointer w-[280px] h-[380px]">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>

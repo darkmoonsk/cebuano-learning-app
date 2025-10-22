@@ -3,7 +3,7 @@
 import { Card } from "@/presentation/components/ui/card";
 import { Badge } from "@/presentation/components/ui/badge";
 import { Progress } from "@/presentation/components/ui/progress";
-import { CheckCircle, Lock } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 
 interface AchievementCardProps {
   id: string;
@@ -22,14 +22,12 @@ interface AchievementCardProps {
 }
 
 export function AchievementCard({
-  id,
   name,
   description,
   icon,
   category,
   isUnlocked,
   unlockedAt,
-  notifiedAt,
   progress,
 }: AchievementCardProps) {
   const getCategoryColor = (category: string) => {

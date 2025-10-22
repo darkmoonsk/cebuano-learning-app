@@ -35,7 +35,9 @@ export async function checkAndGetNewAchievements() {
   }
 }
 
-export async function markAchievementsAsNotified(achievementIds: string[]) {
+export async function markAchievementsAsNotified(): Promise<{
+  success: boolean;
+}> {
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error("Unauthorized");

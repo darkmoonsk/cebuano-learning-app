@@ -139,17 +139,12 @@ export class PrismaReviewRepository implements ReviewRepository {
     reviewTimes: Date[];
     lastReviewDate: Date | null;
   }> {
-    const [totalWordsLearned, reviewEvents, reviewStates] = await Promise.all([
+    const [totalWordsLearned, reviewEvents] = await Promise.all([
       prisma.reviewState.count({ where: { userId } }),
       prisma.reviewEvent.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
         select: { createdAt: true, rating: true },
-      }),
-      prisma.reviewState.findMany({
-        where: { userId },
-        orderBy: { lastReviewedAt: "desc" },
-        select: { lastReviewedAt: true },
       }),
     ]);
 

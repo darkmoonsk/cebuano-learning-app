@@ -30,7 +30,7 @@ export class CheckAchievementsUseCase {
   ): Promise<NewlyUnlockedAchievement[]> {
     const [existingAchievements, stats] = await Promise.all([
       this.achievementRepository.findByUser(input.userId),
-      this.getAchievementStats(input.userId),
+      this.getAchievementStats(),
     ]);
 
     const newlyUnlocked = this.achievementService.checkAndUnlockAchievements(
@@ -40,7 +40,7 @@ export class CheckAchievementsUseCase {
     );
 
     // Create achievement records for newly unlocked achievements
-    const createdAchievements = await Promise.all(
+    await Promise.all(
       newlyUnlocked.map((unlocked) =>
         this.achievementRepository.create({
           userId: input.userId,
@@ -60,7 +60,7 @@ export class CheckAchievementsUseCase {
     }));
   }
 
-  private async getAchievementStats(userId: string): Promise<AchievementStats> {
+  private async getAchievementStats(): Promise<AchievementStats> {
     // This would call the review repository's getAchievementStats method
     // For now, we'll return a basic structure
     return {

@@ -1,4 +1,5 @@
 import { prisma } from "@/infrastructure/prisma/client";
+import { Prisma } from "@prisma/client";
 import {
   CreateUserInput,
   UserRepository,
@@ -50,7 +51,7 @@ export class PrismaUserRepository implements UserRepository {
   async updateSettings(id: string, settings: UserSettings): Promise<void> {
     await prisma.user.update({
       where: { id },
-      data: { settings: settings as any },
+      data: { settings: settings as unknown as Prisma.InputJsonValue },
     });
   }
 
