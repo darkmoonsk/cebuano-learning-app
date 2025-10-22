@@ -8,11 +8,23 @@ export interface SchedulingResult {
   due: Date;
 }
 
+export interface ReviewStateLike {
+  easeFactor: number;
+  interval: number;
+  repetitions: number;
+  due: Date;
+  lastReviewedAt: Date | null;
+}
+
 const MIN_EASE_FACTOR = 1.3;
 
 export class SpacedRepetitionService {
   // Implements a light-weight SM-2 variant tuned for day-level scheduling
-  scheduleNext(state: ReviewState, rating: Difficulty, now: Date): SchedulingResult {
+  scheduleNext(
+    state: ReviewStateLike,
+    rating: Difficulty,
+    now: Date
+  ): SchedulingResult {
     const quality = this.mapQuality(rating);
     const easeFactor = this.computeEaseFactor(state.easeFactor, quality);
     const repetitions = quality < 3 ? 0 : state.repetitions + 1;
@@ -56,7 +68,8 @@ export class SpacedRepetitionService {
   }
 
   private computeEaseFactor(previousEase: number, quality: number) {
-    const nextEase = previousEase + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+    const nextEase =
+      previousEase + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
     return Math.max(nextEase, MIN_EASE_FACTOR);
   }
 

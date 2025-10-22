@@ -15,6 +15,14 @@ export class PrismaReviewRepository implements ReviewRepository {
     return record ? this.toDomain(record) : null;
   }
 
+  async listIntroducedFlashcardIds(userId: string): Promise<string[]> {
+    const records = await prisma.reviewState.findMany({
+      where: { userId },
+      select: { flashcardId: true },
+    });
+    return records.map((r) => r.flashcardId);
+  }
+
   async findDueByUser(userId: string, now: Date, limit: number) {
     const records = await prisma.reviewState.findMany({
       where: { userId, due: { lte: now } },
@@ -91,6 +99,20 @@ export class PrismaReviewRepository implements ReviewRepository {
     };
   }
 
+  async countReviewsOnDate(userId: string, date: Date): Promise<number> {
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
+    return prisma.reviewEvent.count({
+      where: {
+        userId,
+        createdAt: { gte: dayStart, lt: dayEnd },
+      },
+    });
+  }
+
   async countIntroductionsOnDate(userId: string, date: Date): Promise<number> {
     const dayStart = new Date(date);
     dayStart.setHours(0, 0, 0, 0);
@@ -107,6 +129,71 @@ export class PrismaReviewRepository implements ReviewRepository {
         createdAt: { gte: dayStart, lt: dayEnd },
       },
     });
+  }
+
+  async getAchievementStats(userId: string): Promise<{
+    totalWordsLearned: number;
+    totalReviews: number;
+    currentStreak: number;
+    perfectReviewStreak: number;
+    reviewTimes: Date[];
+    lastReviewDate: Date | null;
+  }> {
+    const [totalWordsLearned, reviewEvents, reviewStates] = await Promise.all([
+      prisma.reviewState.count({ where: { userId } }),
+      prisma.reviewEvent.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        select: { createdAt: true, rating: true },
+      }),
+      prisma.reviewState.findMany({
+        where: { userId },
+        orderBy: { lastReviewedAt: "desc" },
+        select: { lastReviewedAt: true },
+      }),
+    ]);
+
+    const totalReviews = reviewEvents.length;
+    const reviewTimes = reviewEvents.map((event) => event.createdAt);
+    const lastReviewDate = reviewTimes.length > 0 ? reviewTimes[0] : null;
+
+    // Calculate current streak
+    const currentStreak = this.computeStreak(
+      reviewEvents.map((event) => ({
+        createdAt: event.createdAt,
+      })),
+      new Date()
+    );
+
+    // Calculate perfect review streak
+    const perfectReviewStreak = this.computePerfectReviewStreak(reviewEvents);
+
+    return {
+      totalWordsLearned,
+      totalReviews,
+      currentStreak,
+      perfectReviewStreak,
+      reviewTimes,
+      lastReviewDate,
+    };
+  }
+
+  private computePerfectReviewStreak(
+    reviewEvents: { createdAt: Date; rating: string }[]
+  ): number {
+    let streak = 0;
+    let currentStreak = 0;
+
+    for (const event of reviewEvents) {
+      if (event.rating === "perfect") {
+        currentStreak++;
+        streak = Math.max(streak, currentStreak);
+      } else {
+        currentStreak = 0;
+      }
+    }
+
+    return streak;
   }
 
   private computeStreak(events: { createdAt: Date }[], now: Date) {

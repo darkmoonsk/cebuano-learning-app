@@ -21,11 +21,15 @@ export interface ReviewRepository {
     userId: string,
     flashcardId: string
   ): Promise<ReviewState | null>;
+  /** Returns all flashcard IDs that have an existing review state for this user. */
+  listIntroducedFlashcardIds(userId: string): Promise<string[]>;
   findDueByUser(
     userId: string,
     now: Date,
     limit: number
   ): Promise<ReviewState[]>;
+  /** Counts all review events performed on a given calendar day. */
+  countReviewsOnDate(userId: string, date: Date): Promise<number>;
   create(data: ReviewPersistenceInput, rating: string): Promise<ReviewState>;
   update(
     id: ReviewId,

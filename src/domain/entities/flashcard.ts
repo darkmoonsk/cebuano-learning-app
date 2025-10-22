@@ -1,32 +1,32 @@
 export type FlashcardId = string;
 
 export interface FlashcardProps {
-  id: FlashcardId;
+  id: string;
+  rank: number;
   english: string;
   cebuano: string;
-  partOfSpeech: string;
-  level: string;
+  explanation: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export class Flashcard {
-  readonly id: FlashcardId;
+  readonly id: string;
+  readonly rank: number;
   readonly english: string;
   readonly cebuano: string;
-  readonly partOfSpeech: string;
-  readonly level: string;
+  readonly explanation: string;
   readonly isActive: boolean;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 
   constructor(props: FlashcardProps) {
     this.id = props.id;
+    this.rank = props.rank;
     this.english = props.english;
     this.cebuano = props.cebuano;
-    this.partOfSpeech = props.partOfSpeech;
-    this.level = props.level;
+    this.explanation = props.explanation;
     this.isActive = props.isActive;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;

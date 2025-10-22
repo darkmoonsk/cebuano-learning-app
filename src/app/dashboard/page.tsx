@@ -17,7 +17,7 @@ export default async function DashboardPage() {
           Welcome back{session.user.name ? `, ${session.user.name}` : ""}
         </h1>
 
-        <div className="flex gap-12">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FeatureOptionCard
             title="Flashcards"
             description="Review your Cebuano flashcards with adaptive spaced repetition."
@@ -49,6 +49,20 @@ export default async function DashboardPage() {
                 priority
                 unoptimized
               />
+            }
+          />
+
+          <FeatureOptionCard
+            title="Phrase Builder"
+            description="Learn Cebuano phrases by assembling word blocks in the correct order."
+            href="/dashboard/phrases"
+            content={
+              <div className="flex h-[280px] w-[280px] items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">🧩</div>
+                  <div className="text-lg font-semibold">Phrase Builder</div>
+                </div>
+              </div>
             }
           />
         </div>

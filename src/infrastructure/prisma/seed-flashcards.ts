@@ -8,10 +8,14 @@ interface CebuanoWordRecord {
   cebuano: string;
   pos: string;
   level: string;
+  explanation?: string;
 }
 
 async function main() {
-  const dataPath = path.resolve(process.cwd(), "src/app/data/cebuano_words.json");
+  const dataPath = path.resolve(
+    process.cwd(),
+    "src/app/data/cebuano_words.json"
+  );
   const content = await readFile(dataPath, "utf-8");
   const words = JSON.parse(content) as CebuanoWordRecord[];
 
@@ -21,16 +25,16 @@ async function main() {
       update: {
         english: word.english,
         cebuano: word.cebuano,
-        partOfSpeech: word.pos,
-        level: word.level,
+        explanation: word.explanation || "",
         isActive: true,
       },
       create: {
         id: String(word.id),
+        rank: word.id,
         english: word.english,
         cebuano: word.cebuano,
-        partOfSpeech: word.pos,
-        level: word.level,
+        explanation: word.explanation || "",
+        isActive: true,
       },
     });
   }

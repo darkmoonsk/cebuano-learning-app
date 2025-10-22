@@ -9,7 +9,9 @@ export class PrismaFlashcardRepository implements FlashcardRepository {
   }
 
   async listAllActive() {
-    const records = await prisma.flashcard.findMany({ where: { isActive: true } });
+    const records = await prisma.flashcard.findMany({
+      where: { isActive: true },
+    });
     return records.map((record) => this.toDomain(record));
   }
 
@@ -25,7 +27,7 @@ export class PrismaFlashcardRepository implements FlashcardRepository {
       },
       take: limit,
       orderBy: {
-        level: "asc",
+        rank: "asc",
       },
     });
 
@@ -34,20 +36,20 @@ export class PrismaFlashcardRepository implements FlashcardRepository {
 
   private toDomain(record: {
     id: string;
+    rank: number;
     english: string;
     cebuano: string;
-    partOfSpeech: string;
-    level: string;
+    explanation: string;
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
   }) {
     return new Flashcard({
       id: record.id,
+      rank: record.rank,
       english: record.english,
       cebuano: record.cebuano,
-      partOfSpeech: record.partOfSpeech,
-      level: record.level,
+      explanation: record.explanation,
       isActive: record.isActive,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
