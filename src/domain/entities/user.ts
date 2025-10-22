@@ -5,6 +5,7 @@ export interface UserProps {
   email: string;
   hashedPassword: string;
   displayName: string;
+  settings?: unknown;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,6 +15,7 @@ export class User {
   readonly email: string;
   readonly hashedPassword: string;
   readonly displayName: string;
+  readonly settings: unknown;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 
@@ -22,6 +24,7 @@ export class User {
     this.email = props.email.toLowerCase();
     this.hashedPassword = props.hashedPassword;
     this.displayName = props.displayName;
+    this.settings = props.settings ?? {};
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }
