@@ -2,11 +2,10 @@ import Link from "next/link";
 import words from "./data/cebuano_words.json";
 
 interface WordRecord {
-  id: number;
-  english: string;
+  rank: number;
   cebuano: string;
-  pos: string;
-  level: string;
+  english: string;
+  explanation: string;
 }
 
 const dataset = words as WordRecord[];
@@ -260,35 +259,35 @@ export default function Home() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  English
+                  Rank
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Cebuano
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Part of speech
+                  English
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Level
+                  Explanation
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {sampleWords.map((word) => (
-                <tr key={word.id} className="hover:bg-gray-50">
+                <tr key={word.rank} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#03045e]">
-                    {word.english}
+                    {word.rank}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {word.cebuano}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {word.pos}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#03045e]">
+                    {word.english}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-[#0077b6]/10 text-[#0077b6]">
-                      {word.level}
-                    </span>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    <div className="max-w-xs truncate" title={word.explanation}>
+                      {word.explanation}
+                    </div>
                   </td>
                 </tr>
               ))}
