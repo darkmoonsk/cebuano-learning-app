@@ -8,6 +8,7 @@ import {
   fetchProgress,
   submitReview,
 } from "@/presentation/actions/flashcards";
+import { AchievementToastContainer } from "@/presentation/components/achievement-toast";
 import {
   Difficulty,
   difficultyLabels,
@@ -21,10 +22,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/presentation/components/ui/card";
-import { Badge } from "@/presentation/components/ui/badge";
 import { Progress } from "@/presentation/components/ui/progress";
 import { getAudioUrlFor } from "@/presentation/lib/utils";
-import { useCases } from "@/infrastructure/container";
 
 const difficultyOrder: Difficulty[] = ["again", "hard", "good", "easy"];
 
@@ -45,43 +44,32 @@ export function FlashcardReviewPanel({
   const [progress, setProgress] = useState(initialProgress);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [wordExplain, setWordExplain] = useState("");
+  const [newlyUnlockedAchievements, setNewlyUnlockedAchievements] = useState<
+    Array<{
+      id: string;
+      name: string;
+      description: string;
+      icon: string;
+      category: string;
+      unlockedAt: Date;
+    }>
+  >([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const autoPlayedCardIdRef = useRef<string | null>(null);
 
-  // uses shared getAudioUrlFor
-
+  const currentCard = cards[0];
   useEffect(() => {
-    const fetchWordExplain = async () => {
-      const wordExplain = await useCases
-        .getWordExplainWithAI()
-        .execute({ word: currentCard.cebuano });
-
-      setWordExplain(wordExplain);
-    };
-
-    fetchWordExplain();
+    handlePlayAudio();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const currentCard = cards[0];
-
   useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, [currentCard?.id]);
-
-  useEffect(() => {
-    if (!currentCard?.id) return;
-    if (autoPlayedCardIdRef.current === currentCard.id) return;
-    autoPlayedCardIdRef.current = currentCard.id;
+    if (!currentCard) return;
+    if (autoPlayedCardIdRef.current === String(currentCard.rank)) return;
+    autoPlayedCardIdRef.current = String(currentCard.rank);
     handlePlayAudio();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentCard?.id]);
+  }, [currentCard?.rank]);
 
   const completionPercent = useMemo(() => {
     if (progress.totalLearned === 0) {
@@ -100,27 +88,15 @@ export function FlashcardReviewPanel({
 
   async function refreshState() {
     const [nextCards, nextProgress] = await Promise.all([
-      fetchDueFlashcards(10),
+      fetchDueFlashcards(),
       fetchProgress(),
     ]);
     setCards(nextCards);
     setProgress(nextProgress);
     setShowAnswer(false);
-
-    const wordExplain = await useCases
-      .getWordExplainWithAI()
-      .execute({ word: currentCard.cebuano });
-
-    setWordExplain(wordExplain);
   }
 
   async function handleReveal() {
-    const wordExplain = await useCases
-      .getWordExplainWithAI()
-      .execute({ word: currentCard.cebuano });
-
-    setWordExplain(wordExplain);
-
     setShowAnswer(true);
   }
 
@@ -130,21 +106,51 @@ export function FlashcardReviewPanel({
     }
 
     startTransition(async () => {
-      await submitReview({ flashcardId: currentCard.id, rating });
+      const result = await submitReview({
+        flashcardId: String(currentCard.rank),
+        rating,
+      });
+
+      // Check if there are newly unlocked achievements
+      if (
+        result &&
+        "newlyUnlockedAchievements" in result &&
+        result.newlyUnlockedAchievements
+      ) {
+        setNewlyUnlockedAchievements(result.newlyUnlockedAchievements);
+      }
+
       await refreshState();
     });
   }
 
   function handlePlayAudio() {
     if (!currentCard) return;
-    const audioUrl = getAudioUrlFor(currentCard.cebuano);
+
+    // Stop any currently playing audio
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
+
+    const audioUrl = getAudioUrlFor(currentCard.cebuano);
     const audio = new Audio(audioUrl);
     audioRef.current = audio;
-    void audio.play();
+
+    // Add error handling and ensure audio is ready
+    audio.addEventListener("canplaythrough", () => {
+      audio.play().catch((error) => {
+        console.warn("Audio play failed:", error);
+      });
+    });
+
+    audio.addEventListener("error", (error) => {
+      console.warn("Audio load failed:", error);
+    });
+
+    // Load the audio
+    audio.load();
   }
 
   if (!currentCard) {
@@ -167,8 +173,8 @@ export function FlashcardReviewPanel({
             <span>{progress.streak} days</span>
           </div>
           <div className="text-xs text-muted-foreground">
-            Tip: You may have reached today ’s limit of 10 new cards. New cards
-            become available tomorrow.
+            Tip: You may have reached today’s new cards limit. New cards become
+            available tomorrow.
           </div>
         </CardContent>
       </Card>
@@ -195,10 +201,6 @@ export function FlashcardReviewPanel({
             </div>
             <CardDescription>What is the English meaning?</CardDescription>
           </div>
-          <div className="flex gap-2">
-            <Badge variant="secondary">{currentCard.partOfSpeech}</Badge>
-            <Badge variant="outline">{currentCard.level}</Badge>
-          </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-6 pt-4">
           <div className="rounded-lg border border-dashed p-6 text-center text-lg">
@@ -207,7 +209,9 @@ export function FlashcardReviewPanel({
                 <span className="font-semibold text-primary">
                   {currentCard.english}
                 </span>
-                <span className="text-muted-foreground">{wordExplain}</span>
+                <span className="text-muted-foreground">
+                  {currentCard.explanation}
+                </span>
               </div>
             ) : (
               <span className="text-muted-foreground">
@@ -228,8 +232,8 @@ export function FlashcardReviewPanel({
                     rating === "again"
                       ? "destructive"
                       : rating === "easy"
-                      ? "default"
-                      : "secondary"
+                        ? "default"
+                        : "secondary"
                   }
                   disabled={isPending}
                   onClick={() => handleReview(rating)}
@@ -276,6 +280,18 @@ export function FlashcardReviewPanel({
           </div>
         </CardContent>
       </Card>
+
+      {/* Achievement Notifications */}
+      {newlyUnlockedAchievements.length > 0 && (
+        <AchievementToastContainer
+          achievements={newlyUnlockedAchievements}
+          onClose={(achievementId) => {
+            setNewlyUnlockedAchievements((prev) =>
+              prev.filter((achievement) => achievement.id !== achievementId)
+            );
+          }}
+        />
+      )}
     </div>
   );
 }
