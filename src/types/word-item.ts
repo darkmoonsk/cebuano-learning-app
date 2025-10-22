@@ -1,7 +1,6 @@
 export type WordItem = {
-  id: number;
+  rank: number;
   english: string;
   cebuano: string;
-  pos?: string;
-  level?: string;
+  explanation?: string;
 };
