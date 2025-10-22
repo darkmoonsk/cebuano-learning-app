@@ -12,19 +12,23 @@ model User {
   email         String        @unique
   hashedPassword String
   displayName   String
+  settings      Json          @default("{}")
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   reviewStates  ReviewState[]
   reviewEvents  ReviewEvent[]
   passwordResetTokens PasswordResetToken[]
+  achievements  Achievement[]
+  phraseReviewStates PhraseReviewState[]
+  phraseReviewEvents PhraseReviewEvent[]
 }
 
 model Flashcard {
   id           String        @id @map("_id")
+  rank         Int
   english      String
   cebuano      String
-  partOfSpeech String
-  level        String
+  explanation  String
   isActive     Boolean       @default(true)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -67,4 +71,56 @@ model PasswordResetToken {
   createdAt  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Achievement {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  achievementId String
+  unlockedAt   DateTime @default(now())
+  notifiedAt   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+model Phrase {
+  id           String        @id @map("_id")
+  cebuano      String
+  english      String
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reviewStates PhraseReviewState[]
+  reviewEvents PhraseReviewEvent[]
+}
+
+model PhraseReviewState {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String      @db.ObjectId
+  phraseId       String
+  easeFactor     Float
+  interval       Int
+  repetitions    Int
+  due            DateTime
+  lastReviewedAt DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phrase    Phrase    @relation(fields: [phraseId], references: [id], onDelete: Cascade)
+}
+
+model PhraseReviewEvent {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  phraseId    String
+  rating      String
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phrase    Phrase    @relation(fields: [phraseId], references: [id], onDelete: Cascade)
 }
