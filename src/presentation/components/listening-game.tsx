@@ -38,20 +38,41 @@ export default function ListeningGame({ words }: { words: WordItem[] }) {
   }, [words]);
 
   function playAudioFor(word: string) {
+    // Stop any currently playing audio completely
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      audioRef.current.removeEventListener("canplaythrough", () => {});
+      audioRef.current.removeEventListener("error", () => {});
+      audioRef.current = null;
     }
+
     const url = getAudioUrlFor(word);
     const audio = new Audio(url);
     audioRef.current = audio;
-    void audio.play();
+
+    // Add error handling and ensure audio is ready
+    const playHandler = () => {
+      audio.play().catch((error) => {
+        console.warn("Audio play failed:", error);
+      });
+    };
+
+    const errorHandler = (error: Event) => {
+      console.warn("Audio load failed:", error);
+    };
+
+    audio.addEventListener("canplaythrough", playHandler, { once: true });
+    audio.addEventListener("error", errorHandler, { once: true });
+
+    // Load the audio
+    audio.load();
   }
 
   function setupRound() {
     const correct = pool[Math.floor(Math.random() * pool.length)];
     const distractors = sample(
-      pool.filter((w) => w.id !== correct.id),
+      pool.filter((w) => w.rank !== correct.rank),
       3
     );
     const nextChoices = sample([correct, ...distractors], 4);
@@ -65,15 +86,22 @@ export default function ListeningGame({ words }: { words: WordItem[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Play audio when answer changes (but not on initial load)
   useEffect(() => {
-    if (!answer) return;
-    playAudioFor(answer.cebuano);
-  }, [answer, round]);
+    if (answer && round > 0) {
+      // Small delay to ensure previous audio is completely stopped
+      const timeoutId = setTimeout(() => {
+        playAudioFor(answer.cebuano);
+      }, 50);
 
-  function handleSelect(id: number) {
+      return () => clearTimeout(timeoutId);
+    }
+  }, [answer]);
+
+  function handleSelect(rank: number) {
     if (!answer || answered) return;
-    setSelectedId(id);
-    setStreak((s) => (id === answer.id ? s + 1 : 0));
+    setSelectedId(rank);
+    setStreak((s) => (rank === answer.rank ? s + 1 : 0));
   }
 
   function handleNext() {
@@ -105,20 +133,20 @@ export default function ListeningGame({ words }: { words: WordItem[] }) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {choices.map((w) => {
-            const isCorrect = answer && w.id === answer.id;
-            const isSelected = selectedId === w.id;
+            const isCorrect = answer && w.rank === answer.rank;
+            const isSelected = selectedId === w.rank;
             const variant = answered
               ? isCorrect
                 ? "default"
                 : isSelected
-                ? "destructive"
-                : "secondary"
+                  ? "destructive"
+                  : "secondary"
               : "secondary";
             return (
               <Button
-                key={w.id}
+                key={w.rank}
                 variant={variant as ButtonProps["variant"]}
-                onClick={() => handleSelect(w.id)}
+                onClick={() => handleSelect(w.rank)}
                 disabled={answered}
                 className="py-6"
               >
