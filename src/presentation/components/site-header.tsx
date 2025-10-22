@@ -121,6 +121,12 @@ export function SiteHeader({ session }: SiteHeaderProps) {
             >
               Progress
             </Link>
+            <Link
+              className="hover:text-[#0077b6] transition-colors"
+              href="/dashboard/settings"
+            >
+              Settings
+            </Link>
           </nav>
         </div>
 
