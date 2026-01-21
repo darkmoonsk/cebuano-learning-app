@@ -31,42 +31,43 @@ export default function ListeningGame({ words }: { words: WordItem[] }) {
   const [answer, setAnswer] = useState<WordItem | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioPlayIdRef = useRef<number>(0);
   const answered = selectedId !== null;
 
   const pool = useMemo(() => {
     return words.filter((w) => w.cebuano && w.cebuano.trim().length > 0);
   }, [words]);
 
-  function playAudioFor(word: string) {
-    // Stop any currently playing audio completely
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current.removeEventListener("canplaythrough", () => {});
-      audioRef.current.removeEventListener("error", () => {});
-      audioRef.current = null;
-    }
-
-    const url = getAudioUrlFor(word);
-    const audio = new Audio(url);
+  function playAudioFor(word: string): void {
+    audioPlayIdRef.current += 1;
+    const playId: number = audioPlayIdRef.current;
+    stopAudio();
+    const url: string = getAudioUrlFor(word);
+    const audio: HTMLAudioElement = new Audio(url);
     audioRef.current = audio;
-
-    // Add error handling and ensure audio is ready
-    const playHandler = () => {
-      audio.play().catch((error) => {
+    audio.preload = "auto";
+    audio.oncanplaythrough = () => {
+      if (audioPlayIdRef.current !== playId) return;
+      void audio.play().catch((error: unknown) => {
         console.warn("Audio play failed:", error);
       });
     };
-
-    const errorHandler = (error: Event) => {
-      console.warn("Audio load failed:", error);
+    audio.onerror = (event: Event | string) => {
+      if (audioPlayIdRef.current !== playId) return;
+      console.warn("Audio load failed:", event);
     };
-
-    audio.addEventListener("canplaythrough", playHandler, { once: true });
-    audio.addEventListener("error", errorHandler, { once: true });
-
-    // Load the audio
     audio.load();
+  }
+
+  function stopAudio(): void {
+    const previousAudio: HTMLAudioElement | null = audioRef.current;
+    if (!previousAudio) return;
+    previousAudio.pause();
+    previousAudio.currentTime = 0;
+    previousAudio.src = "";
+    previousAudio.oncanplaythrough = null;
+    previousAudio.onerror = null;
+    audioRef.current = null;
   }
 
   function setupRound() {
@@ -86,15 +87,16 @@ export default function ListeningGame({ words }: { words: WordItem[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    return () => {
+      stopAudio();
+    };
+  }, []);
+
   // Play audio when answer changes (but not on initial load)
   useEffect(() => {
     if (answer && round > 0) {
-      // Small delay to ensure previous audio is completely stopped
-      const timeoutId = setTimeout(() => {
-        playAudioFor(answer.cebuano);
-      }, 50);
-
-      return () => clearTimeout(timeoutId);
+      playAudioFor(answer.cebuano);
     }
   }, [answer, round]);
 
