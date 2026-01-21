@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { Session } from "next-auth";
 import { SignOutButton } from "@/presentation/components/sign-out-button";
-import { useState, useEffect } from "react";
-import { ShoppingCart } from "lucide-react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 interface SiteHeaderProps {
@@ -20,245 +19,134 @@ export function SiteHeader({ session }: SiteHeaderProps) {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) {
-    return (
-      <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
-          <div className="flex items-center gap-8">
-            <Link href="/">
-              <Image src="/logo.png" alt="Logo" width={64} height={64} />
+  return (
+    <header className="sticky mt-4 top-0 z-50 w-full">
+      <div className="mx-auto w-full max-w-6xl px-4 pt-0">
+        <div className="flex items-center justify-between rounded-full border border-white/15 bg-white/10 px-6 py-3 text-white backdrop-blur">
+          <div className="flex items-center gap-3">
+            <Link href="/" aria-label="Cebuano Learner">
+              <Image src="/logo.png" alt="Logo" width={80} height={80} />
             </Link>
-            <nav className="hidden gap-8 text-sm font-medium text-[#03045e] lg:flex">
-              <Link className="hover:text-[#0077b6] transition-colors" href="/">
-                Home
-              </Link>
-              <Link
-                className="hover:text-[#0077b6] transition-colors"
-                href="/dashboard"
-              >
-                Dashboard
-              </Link>
-              <Link
-                className="hover:text-[#0077b6] transition-colors"
-                href="/progress"
-              >
-                Progress
-              </Link>
-            </nav>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 text-sm text-[#03045e]">
-              <ShoppingCart />
-              <span>Cart (0)</span>
-            </div>
+          <nav className="hidden items-center gap-8 text-sm text-white/80 lg:flex">
+            <Link className="text-white" href="/">
+              Home
+            </Link>
+            <Link className="hover:text-white" href="/dashboard">
+              Dashboard
+            </Link>
+            {isAuthenticated && (
+              <>
+                <Link className="hover:text-white" href="/progress">
+                  Progress
+                </Link>
+                <Link className="hover:text-white" href="/dashboard/settings">
+                  Settings
+                </Link>
+              </>
+            )}
+          </nav>
+          <div className="flex items-center gap-3">
             {isAuthenticated ? (
-              <div className="flex items-center gap-3">
-                <span className="hidden text-sm text-[#03045e] sm:inline">
+              <>
+                <span className="hidden text-sm text-white/80 sm:inline">
                   {session?.user?.name ?? session?.user?.email}
                 </span>
                 <SignOutButton />
-              </div>
+              </>
             ) : (
-              <div className="hidden sm:flex items-center gap-3">
+              <>
                 <Link
                   href="/login"
-                  className="text-sm text-[#03045e] hover:text-[#0077b6] transition-colors"
+                  className="hidden text-xs font-semibold uppercase tracking-wide text-white/80 sm:inline"
                 >
                   Log in
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 text-sm font-medium text-[#03045e] border border-[#03045e] rounded-lg hover:bg-[#03045e] hover:text-white transition-colors"
+                  className="rounded-full bg-[#f6c445] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#0b1c48] shadow-lg shadow-[#f6c445]/30 transition hover:bg-[#ffd36d]"
                 >
                   Create free account
                 </Link>
-              </div>
+              </>
             )}
-            <button className="cursor-pointer lg:hidden p-2 text-[#03045e] hover:text-[#0077b6] transition-colors">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="cursor-pointer rounded-full p-2 text-white/80 transition hover:text-white lg:hidden"
+            >
               <svg
-                className="w-6 h-6"
+                className="h-6 w-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </header>
-    );
-  }
-
-  return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
-        {/* Logo */}
-        <div className="flex items-center gap-8">
-          <Link href="/">
-            <Image src="/logo.png" alt="Logo" width={64} height={64} />
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden gap-8 text-sm font-medium text-[#03045e] lg:flex">
-            <Link className="hover:text-[#0077b6] transition-colors" href="/">
-              Home
-            </Link>
-            <Link
-              className="hover:text-[#0077b6] transition-colors"
-              href="/dashboard"
-            >
-              Dashboard
-            </Link>
-            <Link
-              className="hover:text-[#0077b6] transition-colors"
-              href="/progress"
-            >
-              Progress
-            </Link>
-            <Link
-              className="hover:text-[#0077b6] transition-colors"
-              href="/dashboard/settings"
-            >
-              Settings
-            </Link>
-          </nav>
-        </div>
-
-        {/* Right side actions */}
-        <div className="flex items-center gap-4">
-          {/* Cart */}
-          {/* <div className="hidden sm:flex items-center gap-2 text-sm text-[#03045e]">
-            <ShoppingCart />
-            <span>Cart (0)</span>
-          </div> */}
-
-          {isAuthenticated ? (
-            <div className="flex items-center gap-3">
-              <span className="hidden text-sm text-[#03045e] sm:inline">
-                {session?.user?.name ?? session?.user?.email}
-              </span>
-              <SignOutButton />
-            </div>
-          ) : (
-            <div className="hidden sm:flex items-center gap-3">
-              <Link
-                href="/login"
-                className="text-sm text-[#03045e] hover:text-[#0077b6] transition-colors"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/register"
-                className="px-4 py-2 text-sm font-medium text-[#03045e] border border-[#03045e] rounded-lg hover:bg-[#03045e] hover:text-white transition-colors"
-              >
-                Create free account
-              </Link>
-            </div>
-          )}
-
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="cursor-pointer lg:hidden p-2 text-[#03045e] hover:text-[#0077b6] transition-colors"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {isMobileMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {isMounted && isMobileMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
-          <div className="px-4 py-4 space-y-4">
-            {/* Mobile search */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search courses..."
-                className="w-full px-4 py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0077b6] focus:border-transparent"
-              />
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg
-                  className="w-4 h-4 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                {isMobileMenuOpen ? (
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    d="M6 18L18 6M6 6l12 12"
                   />
-                </svg>
-              </div>
-            </div>
-
-            {/* Mobile navigation */}
-            <nav className="space-y-2">
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                )}
+              </svg>
+            </button>
+          </div>
+        </div>
+        {isMounted && isMobileMenuOpen && (
+          <div className="mt-4 rounded-3xl border border-white/15 bg-[#0b1c48]/80 px-4 py-4 text-white backdrop-blur lg:hidden">
+            <nav className="space-y-2 text-sm">
               <Link
                 href="/"
-                className="block px-3 py-2 text-sm font-medium text-[#03045e] hover:text-[#0077b6] hover:bg-gray-50 rounded-lg transition-colors"
+                className="block rounded-lg px-3 py-2 text-white/80 hover:bg-white/10 hover:text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Courses
+                Home
               </Link>
               <Link
                 href="/dashboard"
-                className="block px-3 py-2 text-sm font-medium text-[#03045e] hover:text-[#0077b6] hover:bg-gray-50 rounded-lg transition-colors"
+                className="block rounded-lg px-3 py-2 text-white/80 hover:bg-white/10 hover:text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Dashboard
               </Link>
-              <Link
-                href="/progress"
-                className="block px-3 py-2 text-sm font-medium text-[#03045e] hover:text-[#0077b6] hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Progress
-              </Link>
+              {isAuthenticated && (
+                <>
+                  <Link
+                    href="/progress"
+                    className="block rounded-lg px-3 py-2 text-white/80 hover:bg-white/10 hover:text-white"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Progress
+                  </Link>
+                  <Link
+                    href="/dashboard/settings"
+                    className="block rounded-lg px-3 py-2 text-white/80 hover:bg-white/10 hover:text-white"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Settings
+                  </Link>
+                </>
+              )}
             </nav>
-
-            {/* Mobile auth */}
             {!isAuthenticated && (
-              <div className="pt-4 border-t border-gray-200 space-y-2">
+              <div className="mt-4 border-t border-white/10 pt-4">
                 <Link
                   href="/login"
-                  className="block px-3 py-2 text-sm text-[#03045e] hover:text-[#0077b6] transition-colors"
+                  className="block rounded-lg px-3 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Log in
                 </Link>
                 <Link
                   href="/register"
-                  className="block px-3 py-2 text-sm font-medium text-[#03045e] border border-[#03045e] rounded-lg hover:bg-[#03045e] hover:text-white transition-colors text-center"
+                  className="mt-2 block rounded-full bg-[#f6c445] px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-[#0b1c48]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Create free account
@@ -266,8 +154,8 @@ export function SiteHeader({ session }: SiteHeaderProps) {
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 }
