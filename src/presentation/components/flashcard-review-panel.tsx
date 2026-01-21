@@ -55,12 +55,19 @@ export function FlashcardReviewPanel({
     }>
   >([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioPlayIdRef = useRef<number>(0);
   const autoPlayedCardIdRef = useRef<string | null>(null);
 
   const currentCard = cards[0];
   useEffect(() => {
     handlePlayAudio();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      stopAudio();
+    };
   }, []);
 
   useEffect(() => {
@@ -126,31 +133,35 @@ export function FlashcardReviewPanel({
 
   function handlePlayAudio() {
     if (!currentCard) return;
-
-    // Stop any currently playing audio
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current = null;
-    }
-
-    const audioUrl = getAudioUrlFor(currentCard.cebuano);
-    const audio = new Audio(audioUrl);
+    audioPlayIdRef.current += 1;
+    const playId: number = audioPlayIdRef.current;
+    stopAudio();
+    const audioUrl: string = getAudioUrlFor(currentCard.cebuano);
+    const audio: HTMLAudioElement = new Audio(audioUrl);
     audioRef.current = audio;
-
-    // Add error handling and ensure audio is ready
-    audio.addEventListener("canplaythrough", () => {
-      audio.play().catch((error) => {
+    audio.preload = "auto";
+    audio.oncanplaythrough = () => {
+      if (audioPlayIdRef.current !== playId) return;
+      void audio.play().catch((error: unknown) => {
         console.warn("Audio play failed:", error);
       });
-    });
-
-    audio.addEventListener("error", (error) => {
-      console.warn("Audio load failed:", error);
-    });
-
-    // Load the audio
+    };
+    audio.onerror = (event: Event | string) => {
+      if (audioPlayIdRef.current !== playId) return;
+      console.warn("Audio load failed:", event);
+    };
     audio.load();
+  }
+
+  function stopAudio(): void {
+    const previousAudio: HTMLAudioElement | null = audioRef.current;
+    if (!previousAudio) return;
+    previousAudio.pause();
+    previousAudio.currentTime = 0;
+    previousAudio.src = "";
+    previousAudio.oncanplaythrough = null;
+    previousAudio.onerror = null;
+    audioRef.current = null;
   }
 
   if (!currentCard) {
