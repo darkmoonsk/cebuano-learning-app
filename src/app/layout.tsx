@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/presentation/providers/session-provider";
 import { auth } from "@/auth";
-import { SiteHeader } from "@/presentation/components/site-header";
 import type { Session } from "next-auth";
 
 const geistSans = Geist({
@@ -36,7 +35,6 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
         <SessionProvider session={session}>
-          <SiteHeader session={session} />
           <main className="relative">{children}</main>
         </SessionProvider>
       </body>
