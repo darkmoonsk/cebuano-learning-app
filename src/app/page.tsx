@@ -79,10 +79,10 @@ export default async function Home() {
         <div className="absolute inset-x-0 bottom-0 h-96 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.08)_0,_rgba(255,255,255,0)_60%)]" />
       </div>
       <div className="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 pb-16 pt-8">
-        <section className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/10 p-8 backdrop-blur lg:p-12">
+        <section className="relative flex justify-center md:justify-start overflow-hidden rounded-3xl border border-white/15 bg-white/10 p-8 backdrop-blur lg:p-12">
           <div className="relative z-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
             <div className="space-y-5">
-              <h1 className="text-3xl font-bold leading-tight text-white sm:text-4xl">
+              <h1 className="text-3xl font-bold leading-tight w-96 lg:w-full text-white sm:text-4xl">
                 MABUYAY! Sugdan Ta Pagtoun og Cebuano
               </h1>
               <p className="text-base text-white/80 sm:text-lg">
@@ -104,7 +104,7 @@ export default async function Home() {
               alt="Cebuano Learner pet"
               width={380}
               height={380}
-              className="relative drop-shadow-2xl"
+              className="relative drop-shadow-2xl hidden md:block md:w-80 lg:w-96"
             />
           </div>
         </section>
