@@ -98,6 +98,7 @@ export default function ListeningGame({ words }: { words: WordItem[] }) {
     if (answer && round > 0) {
       playAudioFor(answer.cebuano);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answer, round]);
 
   function handleSelect(rank: number) {

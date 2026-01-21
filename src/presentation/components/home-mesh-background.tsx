@@ -22,7 +22,6 @@ const PLANE_WIDTH: number = 30;
 const PLANE_HEIGHT: number = 20;
 const PLANE_SEGMENTS_X: number = 120;
 const PLANE_SEGMENTS_Y: number = 80;
-const CAMERA_DISTANCE: number = 10;
 const WAVE_AMPLITUDE: number = 0.6;
 const WAVE_FREQUENCY_X: number = 0.25;
 const WAVE_FREQUENCY_Y: number = 0.35;
