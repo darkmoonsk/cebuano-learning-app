@@ -1,4 +1,4 @@
-export default function LoadingPhrasesPage(): JSX.Element {
+export default function LoadingPhrasesPage() {
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10">
       <div className="space-y-2">
