@@ -60,7 +60,7 @@ export class AIService {
       (process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
         : "http://localhost:3000");
-    const prompt: string = `Generate exactly ${input.count} Cebuano phrases for language learning. Each Cebuano phrase must have at least ${input.minWordCount} words. Return ONLY a valid JSON object with this exact structure:
+    const prompt: string = `Generate exactly ${input.count} Cebuano phrases for language learning. Each Cebuano phrase must have at least ${input.minWordCount} words. Every phrase must describe a real-life, everyday situation. Return ONLY a valid JSON object with this exact structure:
 {
   "phrases": [
     { "cebuano": "phrase in Cebuano", "english": "phrase in English" }
@@ -69,7 +69,8 @@ export class AIService {
 
 Rules:
 - Each Cebuano phrase must contain at least ${input.minWordCount} words.
-- Use everyday, beginner-friendly phrases.
+- Use everyday, beginner-friendly phrases about real-life situations (home, school, work, travel, shopping, directions, greetings, food, health, time).
+- Avoid abstract ideas, proverbs, fictional scenarios, or metaphors.
 - Provide a clear English translation for each.
 - Return ONLY the JSON object, no additional text or explanation.`;
     const url: string = `${baseUrl}/api/ai?prompt=${encodeURIComponent(
