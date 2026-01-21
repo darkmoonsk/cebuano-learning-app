@@ -56,13 +56,15 @@ const toAchievementDto = (achievement: AchievementDto): AchievementDto => ({
 export async function fetchDuePhrases(
   userId: string,
   limit?: number,
-  newDailyCap?: number
+  newDailyCap?: number,
+  startAfterId?: string
 ): Promise<PhraseDto[]> {
   try {
     const result = await useCases.getDuePhrases().execute({
       userId,
       limit: limit ?? 4,
       newDailyCap: newDailyCap ?? 4,
+      startAfterId,
     });
 
     return result.due.map((phrase) => ({

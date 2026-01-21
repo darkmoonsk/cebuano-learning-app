@@ -38,16 +38,7 @@ export default async function PhrasesPage() {
     progress = progressResult;
   } catch (error) {
     console.error("Error loading phrases:", error);
-    // Fallback: JSON-only mode if database is unavailable
-    const phrasesData = await import("@/app/data/cebuano_phrases.json");
-    const phrasesArray = phrasesData.default || phrasesData;
-    phrases = phrasesArray
-      .slice(0, 4)
-      .map((phrase: { cebuano: string; english: string }, index: number) => ({
-        id: String(index + 1),
-        cebuano: phrase.cebuano,
-        english: phrase.english,
-      }));
+    phrases = [];
   }
 
   return (

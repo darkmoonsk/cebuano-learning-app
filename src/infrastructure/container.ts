@@ -97,7 +97,11 @@ export const useCases = {
       reviewRepository
     ),
   getDuePhrases: () =>
-    new GetDuePhrasesUseCase(phraseReviewRepository, phraseRepository),
+    new GetDuePhrasesUseCase(
+      phraseReviewRepository,
+      phraseRepository,
+      aiService
+    ),
   recordPhraseReview: () =>
     new RecordPhraseReviewUseCase(
       phraseReviewRepository,

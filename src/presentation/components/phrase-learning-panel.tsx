@@ -8,7 +8,6 @@ import {
   fetchPhraseProgress,
 } from "@/presentation/actions/phrases";
 import { AchievementToastContainer } from "@/presentation/components/achievement-toast";
-// import { Difficulty } from "@/domain/value-objects/difficulty-rating";
 import { Button } from "@/presentation/components/ui/button";
 import {
   Card,
@@ -61,7 +60,7 @@ export function PhraseLearningPanel({
   const [practiceStep, setPracticeStep] = useState<PracticeStep>("select");
   const [practicePhrases, setPracticePhrases] = useState<PracticePhrase[]>([]);
   const [currentPracticeIndex, setCurrentPracticeIndex] = useState(0);
-  // const [, startTransition] = useTransition();
+  const [isLoadingMorePhrases, setIsLoadingMorePhrases] = useState(false);
   const [newlyUnlockedAchievements] = useState<
     Array<{
       id: string;
@@ -76,9 +75,9 @@ export function PhraseLearningPanel({
   const currentPhrase = phrases[currentPhraseIndex];
   const currentPractice = practicePhrases[currentPracticeIndex];
 
-  async function refreshState() {
+  async function refreshState(startAfterId?: string) {
     const [nextPhrases, nextProgress] = await Promise.all([
-      fetchDuePhrases(userId),
+      fetchDuePhrases(userId, undefined, undefined, startAfterId),
       fetchPhraseProgress(userId),
     ]);
     setPhrases(nextPhrases);
@@ -151,12 +150,21 @@ export function PhraseLearningPanel({
         return prev;
       }
 
+      const newSelectedWords = [...practice.selectedWords, word];
+      const allWordsSelected = newSelectedWords.length === practice.words.length;
+      const isCorrect = allWordsSelected
+        ? validatePhraseOrder(newSelectedWords, practice.words)
+        : null;
+
       updated[currentPracticeIndex] = {
         ...practice,
-        selectedWords: [...practice.selectedWords, word],
-        // Reset validation state when words are modified
-        isCorrect: null,
+        selectedWords: newSelectedWords,
+        isCorrect,
       };
+
+      if (allWordsSelected) {
+        setPracticeStep("validate");
+      }
 
       return updated;
     });
@@ -184,42 +192,14 @@ export function PhraseLearningPanel({
     setPracticeStep("select");
   }
 
-  function checkAnswer() {
-    let hasCurrentPractice = false;
-
-    setPracticePhrases((prev) => {
-      const updated = [...prev];
-      const practice = updated[currentPracticeIndex];
-
-      if (!practice) {
-        return prev;
-      }
-
-      hasCurrentPractice = true;
-
-      const isCorrect = validatePhraseOrder(
-        practice.selectedWords,
-        practice.words
-      );
-
-      updated[currentPracticeIndex] = {
-        ...practice,
-        isCorrect,
-      };
-
-      return updated;
-    });
-
-    if (hasCurrentPractice) {
-      setPracticeStep("validate");
-    }
-  }
-
-  function nextPractice() {
+  async function nextPractice() {
     if (currentPracticeIndex < practicePhrases.length - 1) {
       setCurrentPracticeIndex((prev) => prev + 1);
       setPracticeStep("select");
     } else {
+      const lastPractice = practicePhrases[practicePhrases.length - 1];
+      const lastPhraseId = lastPractice?.phrase.id;
+      await refreshState(lastPhraseId);
       setPhase("completed");
     }
   }
@@ -261,10 +241,18 @@ export function PhraseLearningPanel({
   //   });
   // }
 
-  function continueLearning() {
-    setPhase("learning");
-    setCurrentPhraseIndex(0);
-    void refreshState();
+  async function continueLearning() {
+    if (isLoadingMorePhrases) return;
+    setIsLoadingMorePhrases(true);
+    try {
+      const lastPhraseId =
+        phrases.length > 0 ? phrases[phrases.length - 1].id : undefined;
+      await refreshState(lastPhraseId);
+      setCurrentPhraseIndex(0);
+      setPhase("learning");
+    } finally {
+      setIsLoadingMorePhrases(false);
+    }
   }
 
   if (phrases.length === 0) {
@@ -502,15 +490,7 @@ export function PhraseLearningPanel({
                 Reset
               </Button>
               <div className="flex gap-2">
-                {practiceStep === "select" && (
-                  <Button
-                    onClick={checkAnswer}
-                    disabled={currentPractice.selectedWords.length === 0}
-                  >
-                    Check Answer
-                  </Button>
-                )}
-                {practiceStep === "validate" && (
+                {currentPractice.isCorrect === true && (
                   <Button onClick={nextPractice}>
                     {currentPracticeIndex < practicePhrases.length - 1
                       ? "Next"
@@ -542,7 +522,9 @@ export function PhraseLearningPanel({
                   practicing to improve your Cebuano!
                 </p>
                 <div className="flex gap-4">
-                  <Button onClick={continueLearning}>Learn More Phrases</Button>
+                  <Button onClick={continueLearning} disabled={isLoadingMorePhrases}>
+                    {isLoadingMorePhrases ? "Loading..." : "Learn More Phrases"}
+                  </Button>
                   <Button
                     variant="outline"
                     onClick={() => (window.location.href = "/dashboard")}
