@@ -14,6 +14,28 @@ export interface FlashcardDto {
   explanation: string;
 }
 
+interface ReviewStateDto {
+  id: string;
+  userId: string;
+  flashcardId: string;
+  easeFactor: number;
+  interval: number;
+  repetitions: number;
+  due: Date;
+  lastReviewedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface AchievementDto {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: string;
+  unlockedAt: Date;
+}
+
 const toDto = (flashcard: Flashcard): FlashcardDto => {
   const rankNum = Number(flashcard.id);
   const explanation =
@@ -32,6 +54,28 @@ const toDto = (flashcard: Flashcard): FlashcardDto => {
     explanation,
   };
 };
+
+const toReviewStateDto = (reviewState: ReviewStateDto): ReviewStateDto => ({
+  id: reviewState.id,
+  userId: reviewState.userId,
+  flashcardId: reviewState.flashcardId,
+  easeFactor: reviewState.easeFactor,
+  interval: reviewState.interval,
+  repetitions: reviewState.repetitions,
+  due: reviewState.due,
+  lastReviewedAt: reviewState.lastReviewedAt,
+  createdAt: reviewState.createdAt,
+  updatedAt: reviewState.updatedAt,
+});
+
+const toAchievementDto = (achievement: AchievementDto): AchievementDto => ({
+  id: achievement.id,
+  name: achievement.name,
+  description: achievement.description,
+  icon: achievement.icon,
+  category: achievement.category,
+  unlockedAt: achievement.unlockedAt,
+});
 
 export async function fetchDueFlashcards(
   limit?: number,
@@ -123,7 +167,12 @@ export async function submitReview({
 
   revalidatePath("/dashboard");
 
-  return result;
+  return {
+    reviewState: toReviewStateDto(result.reviewState),
+    newlyUnlockedAchievements: result.newlyUnlockedAchievements.map(
+      toAchievementDto
+    ),
+  };
 }
 
 export async function fetchProgress() {
