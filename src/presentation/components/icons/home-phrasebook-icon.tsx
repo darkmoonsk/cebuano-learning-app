@@ -1,3 +1,5 @@
+import type { JSX } from "react";
+
 /**
  * Renders the phrasebook feature icon used on the home page.
  */
